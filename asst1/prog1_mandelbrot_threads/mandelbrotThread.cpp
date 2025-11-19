@@ -22,20 +22,34 @@ extern void mandelbrotSerial(
     int maxIterations,
     int output[]);
 
+extern void mandelbrotSerialInterleaved(
+    float x0, float y0, float x1, float y1,
+    int width, int height,
+    int maxIterations,
+    int output[],
+    int threadId,
+    int numThreads);
 
 //
 // workerThreadStart --
 //
 // Thread entrypoint.
 void workerThreadStart(WorkerArgs * const args) {
-
-    // TODO FOR CS149 STUDENTS: Implement the body of the worker
-    // thread here. Each thread should make a call to mandelbrotSerial()
-    // to compute a part of the output image.  For example, in a
-    // program that uses two threads, thread 0 could compute the top
-    // half of the image and thread 1 could compute the bottom half.
-
-    printf("Hello world from thread %d\n", args->threadId);
+    double startTime = CycleTimer::currentSeconds();
+    mandelbrotSerialInterleaved(
+        args->x0,
+        args->y0,
+        args->x1,
+        args->y1,
+        args->width,
+        args->height,
+        args->maxIterations,
+        args->output,
+        args->threadId,
+        args->numThreads
+    );
+    double elapsed = CycleTimer::currentSeconds() - startTime;
+    printf("Thread %d finished in %.3f ms\n", args->threadId, elapsed * 1000.0);
 }
 
 //

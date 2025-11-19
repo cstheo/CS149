@@ -37,6 +37,7 @@
    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// #include <cstdio>
 
 static inline int mandel(float c_re, float c_im, int count)
 {
@@ -74,6 +75,7 @@ void mandelbrotSerial(
     int maxIterations,
     int output[])
 {
+    // printf("[mandelbrotSerial] x0: %f, y0: %f, x1: %f, y1: %f, startRow: %d, totalRows: %d\n", x0, y0, x1, y1, startRow, totalRows);
     float dx = (x1 - x0) / width;
     float dy = (y1 - y0) / height;
 
@@ -90,3 +92,24 @@ void mandelbrotSerial(
     }
 }
 
+void mandelbrotSerialInterleaved(
+    float x0, float y0, float x1, float y1,
+    int width, int height,
+    int maxIterations,
+    int output[],
+    int threadId,
+    int numThreads)
+{
+    float dx = (x1 - x0) / width;
+    float dy = (y1 - y0) / height;
+
+    for (int j = threadId; j < height; j += numThreads) {
+        float y = y0 + j * dy;
+
+        for (int i = 0; i < width; ++i) {
+            float x = x0 + i * dx;
+            int index = (j * width + i); 
+            output[index] = mandel(x, y, maxIterations);
+        }
+    }
+}
