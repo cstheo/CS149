@@ -18,3 +18,9 @@ Cores: 10 (4 performance and 6 efficiency)
 
 ![image-20251119221138264](./prog1_mandelbrot_threads/view2_speedup.png)
 
+Unable to optimize on macOS...
+Transfer to Arch Linux
+
+After optimization(Speedup):
+view1: 10.28x
+view2: 9.3x 

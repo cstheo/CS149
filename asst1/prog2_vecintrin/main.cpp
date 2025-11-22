@@ -249,7 +249,48 @@ void clampedExpVector(float* values, int* exponents, float* output, int N) {
   // Your solution should work for any value of
   // N and VECTOR_WIDTH, not just when VECTOR_WIDTH divides N
   //
-  
+
+  __cs149_vec_float x, result;
+  __cs149_vec_int exp, cnt;
+  __cs149_vec_int zero = _cs149_vset_int(0);
+  __cs149_vec_int onei = _cs149_vset_int(1);
+  __cs149_vec_float onef = _cs149_vset_float(1.f);
+  __cs149_vec_float threshold = _cs149_vset_float(9.999999f);
+  __cs149_mask maskAll, maskIsZero, maskIsNotZero, maskPositive, maskThreshold;
+  for (int i = 0; i < N; i += VECTOR_WIDTH) {
+    int remaining = N - i;
+    if (remaining < VECTOR_WIDTH) {
+      maskAll = _cs149_init_ones(remaining);
+    } else {
+      maskAll = _cs149_init_ones();
+    }
+    maskIsZero = _cs149_init_ones(0);
+    maskPositive  = _cs149_init_ones(0);
+    maskThreshold = _cs149_init_ones(0);
+
+    _cs149_vload_float(x, values + i, maskAll);
+    _cs149_vload_int(exp, exponents + i, maskAll);
+
+    _cs149_veq_int(maskIsZero, exp, zero, maskAll);
+
+    _cs149_vstore_float(output+i, onef, maskIsZero);
+
+    maskIsNotZero = _cs149_mask_not(maskIsZero);
+    maskIsNotZero = _cs149_mask_and(maskIsNotZero, maskAll);
+
+    _cs149_vmove_float(result, x, maskIsNotZero);
+    _cs149_vsub_int(cnt, exp, onei, maskIsNotZero);
+    _cs149_vgt_int(maskPositive, cnt, zero, maskIsNotZero);
+    while (_cs149_cntbits(maskPositive)) {
+      _cs149_vmult_float(result, result, x, maskPositive);
+      _cs149_vsub_int(cnt, cnt, onei, maskPositive);
+      _cs149_vgt_int(maskPositive, cnt, zero, maskPositive);
+    }
+
+    _cs149_vgt_float(maskThreshold, result, threshold, maskIsNotZero);
+    _cs149_vset_float(result, 9.999999f, maskThreshold);
+    _cs149_vstore_float(output+i, result, maskIsNotZero);
+  }
 }
 
 // returns the sum of all elements in values
@@ -271,10 +312,25 @@ float arraySumVector(float* values, int N) {
   // CS149 STUDENTS TODO: Implement your vectorized version of arraySumSerial here
   //
   
-  for (int i=0; i<N; i+=VECTOR_WIDTH) {
+  __cs149_vec_float x;
+  __cs149_vec_float sumVec = _cs149_vset_float(0.f);
+  __cs149_mask maskAll = _cs149_init_ones();
 
+  for (int i = 0; i < N; i += VECTOR_WIDTH) {
+    _cs149_vload_float(x, values + i, maskAll);
+    _cs149_vadd_float(sumVec, sumVec, x, maskAll);
   }
 
-  return 0.0;
+  int width = VECTOR_WIDTH;
+  while (width > 1) {
+    _cs149_hadd_float(sumVec, sumVec);
+    _cs149_interleave_float(sumVec, sumVec);
+    width >>= 1;
+  }
+
+  float sum[VECTOR_WIDTH];
+  _cs149_vstore_float(sum, sumVec, maskAll);
+
+  return sum[0];
 }
 
