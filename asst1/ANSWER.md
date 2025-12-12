@@ -51,3 +51,32 @@ What are differences between the thread abstraction and the ISPC task abstractio
 - thread is MIMD but ispc is SIMD
 - the cost of ispc schedule is much lower(ispc task schedule no need to context switch)
 - ispc runtime is just user program
+
+# Prog4
+
+**Init**
+
+3.9x speed up due to SIMD parallelization
+
+45x speed up due to multicore parallelization
+
+**best**
+
+All set to 0.0f
+
+6.65x speedup from ISPC
+73.81x speedup from task ISPC
+
+**worst**
+
+All set to 1.0f
+
+1.75x speedup from ISPC
+2.93x speedup from task ISPC
+
+**AVX2** with best speedup
+
+6.58x speedup from ISPC
+62.15x speedup from task ISPC
+8.98x speedup from AVX2
+
