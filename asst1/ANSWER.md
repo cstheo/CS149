@@ -80,3 +80,20 @@ All set to 1.0f
 62.15x speedup from task ISPC
 8.98x speedup from AVX2
 
+# Prog5
+
+**Init**
+
+[saxpy serial] :	     [10.512] ms	[28.350] GB/s	[3.805] GFLOPS
+[saxpy ispc] :		[9.191] ms	[32.425] GB/s	[4.352] GFLOPS
+[saxpy task ispc] :	[5.097] ms	[58.474] GB/s	[7.848] GFLOPS
+(1.80x speedup from use of tasks)
+
+could you rewrite the code to achieve near linear speedup? Yes or No? Please justify your answer.
+
+- For extremely large vectors like N=20M, which is far greater than the cache capacity, SAXPY is basically a pipeline of "streaming data from memory → performing a few calculations → writing it back"; the bottleneck is not computing power but DRAM bandwidth. More cores/more tasks can only make "full bandwidth" faster, but once the memory bandwidth is saturated, adding more cores will not make it linearly faster.
+
+Note that the total bandwidth memory consumed computation in main.cpp is TOTAL_BYTES = 4 * N * sizeof(float);. Even though saxpy loads one element from X, one element from Y, and writes one element to result the multiplier by 4 is correct. Why is this the case?
+
+- We are handling large vectors which is far greater than the cache capacity. So we will encounter cache miss, which mean we will get the data from lower storage (disk). a typical CPU cache is write-back + write-allocate. If the destination cache line isn’t already in cache, the first store triggers a Read-
+    For-Ownership (RFO): the CPU must read the whole cache line from memory into cache before it can modify any bytes in it. Later, when that dirty line is evicted, it’s written back to memory.

@@ -8,6 +8,12 @@ export void saxpy_ispc(uniform int N,
     foreach (i = 0 ... N) {           
         result[i] = scale * X[i] + Y[i];
     }
+    // uniform int count = N / programCount;
+    // int start = programIndex * count;
+    // for (uniform int i = 0; i < count; i++) {
+    //     int idx = start + i;
+    //     result[idx] = scale * X[idx] + Y[idx];
+    // }
 }
 
 task void saxpy_ispc_task(uniform int N,

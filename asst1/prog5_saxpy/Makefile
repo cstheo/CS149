@@ -35,6 +35,5 @@ $(OBJDIR)/%.o: $(COMMONDIR)/%.cpp
 
 $(OBJDIR)/main.o: $(OBJDIR)/$(APP_NAME)_ispc.h $(COMMONDIR)/CycleTimer.h
 
-$(OBJDIR)/%_ispc.h $(OBJDIR)//%_ispc.o: %.ispc
+$(OBJDIR)/%_ispc.h $(OBJDIR)/%_ispc.o: %.ispc
 		$(ISPC) $(ISPCFLAGS) $< -o $(OBJDIR)/$*_ispc.o -h $(OBJDIR)/$*_ispc.h
-
